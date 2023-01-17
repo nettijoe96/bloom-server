@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 	"github.com/nettijoe96/bloom"
 )
@@ -21,6 +22,10 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/bloom-request", handleBloom)
+	r.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
+	sh := middleware.SwaggerUI(opts, nil)
+	r.Handle("/docs", sh)
 
 	srv := &http.Server{
 		Handler:      r,
@@ -48,7 +53,7 @@ func handleBloom(w http.ResponseWriter, r *http.Request) {
 
 	// used for response
 	type msgsResp struct {
-		Msgs []string `json:"msgs"`
+		Messages []string `json:"messages"`
 	}
 
 	var ctx context.Context
@@ -97,7 +102,7 @@ func handleBloom(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Connection Timed Out", http.StatusRequestTimeout)
 	case msgsNeeded := <-msgCh: // wait until all messages are processed to constuct response
 		resp := msgsResp{
-			Msgs: msgsNeeded,
+			Messages: msgsNeeded,
 		}
 		respBytes, err := json.Marshal(resp)
 		if err != nil {

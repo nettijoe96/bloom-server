@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: SPV APIs
+  description: |-
+    This is a the bloom-request OpenAPI 3.0 specification
+  contact:
+    email: joe@netti.dev
+  version: 0
+externalDocs:
+  description: Github repo
+  url: https://github.com/nettijoe96/spv-bloom
+tags:
+  - name: Bloom APIs
+    description: API to GET messages via bloom filter
+paths:
+  /bloom-request:
+    post:
+      tags:
+        - Bloom APIs
+      summary: GET all messages that match bloom filter
+      description: GET all messages that match bloom filter
+      operationId: bloom-request
+      requestBody:
+        description: bloom filter hex string
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Bloom"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Msgs"
+        "400":
+          description: invalid bloom filter hex
+components:
+  schemas:
+    Msgs:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+    Bloom:
+      type: object
+      properties:
+        bloom:
+          type: string
