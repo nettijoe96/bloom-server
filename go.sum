@@ -2,3 +2,5 @@ github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
 github.com/nettijoe96/bloom v0.0.0-20230116184655-4f33a7cba0e6 h1:uxMUIEITX1FIz15jrVj/77GPC/Ouc9vxvFzmsPq6r48=
 github.com/nettijoe96/bloom v0.0.0-20230116184655-4f33a7cba0e6/go.mod h1:kEn6Ob87Aq53KZcYf+hA+Iu1TmiCPRRE1pNRCF5JDhg=
+github.com/nettijoe96/bloom v0.0.0-20230117064510-12e743ea639a h1:XGK/WjS3saZS8/P8ET9qOovI1/cwg0NIsrzrZhDZgC8=
+github.com/nettijoe96/bloom v0.0.0-20230117064510-12e743ea639a/go.mod h1:kEn6Ob87Aq53KZcYf+hA+Iu1TmiCPRRE1pNRCF5JDhg=
