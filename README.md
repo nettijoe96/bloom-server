@@ -38,6 +38,5 @@ response:
 }
 ```
 
-## still TODO
-1. Populating messages on the server side
-2. Database to store messages on server side
+## TODO
+1. Database to store messages on server side

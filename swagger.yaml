@@ -10,15 +10,21 @@ externalDocs:
   description: Github repo
   url: https://github.com/nettijoe96/spv-bloom
 tags:
-  - name: Bloom APIs
-    description: API to GET messages via bloom filter
+  - name: Message APIs
+    description: APIs to publish and retrieve messages
 paths:
   /bloom-request:
     post:
+      parameters:
+      - in: query
+        name: timestamp
+        schema:
+          type: string
+        required: false
       tags:
-        - Bloom APIs
-      summary: GET all messages that match bloom filter
-      description: GET all messages that match bloom filter
+        - Message APIs
+      summary: Retrieve all messages that match bloom filter
+      description: Retrieve all messages that match bloom filter
       operationId: bloom-request
       requestBody:
         description: bloom filter hex string
@@ -33,12 +39,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Msgs"
+                $ref: "#/components/schemas/Messages"
         "400":
-          description: invalid bloom filter hex
+          description: Invalid bloom filter hex
+        "408":
+          description: Request Timeout
+  /publish:
+    post:
+        parameters:
+          - in: query
+            name: timestamp
+            schema:
+              type: string
+            required: false
+        tags:
+          - Message APIs
+        summary: Publish new messages
+        description: Publish new messages
+        operationId: publish
+        requestBody:
+          description: messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Messages"
+          required: true
+        responses:
+          "204":
+            description: Successful operation
+          "400":
+            description: Invalid request body
+          "408":
+            description: Request Timeout
 components:
   schemas:
-    Msgs:
+    Messages:
       type: object
       properties:
         messages:

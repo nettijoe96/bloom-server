@@ -14,14 +14,17 @@ import (
 )
 
 var (
-	msgs []string // TODO: replace with database
+	msgs []string
+	msgm map[string]bool
 )
 
 func main() {
-	populateMsgs()
+	msgs = make([]string, 0)
+	msgm = make(map[string]bool)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/bloom-request", handleBloom)
+	r.HandleFunc("/publish", handlePublish)
 	r.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
 	sh := middleware.SwaggerUI(opts, nil)
@@ -36,12 +39,6 @@ func main() {
 	http.Handle("/", r)
 
 	log.Fatal(srv.ListenAndServe())
-}
-
-func populateMsgs() {
-	msgs = make([]string, 0)
-	msgs = append(msgs, "test1")
-	msgs = append(msgs, "test2")
 }
 
 func handleBloom(w http.ResponseWriter, r *http.Request) {
@@ -98,8 +95,8 @@ func handleBloom(w http.ResponseWriter, r *http.Request) {
 
 	select {
 	case <-ctx.Done():
-		// reaches this point if uses cancels request before or user provides timeout as query param and timeout is exceeded
-		http.Error(w, "Connection Timed Out", http.StatusRequestTimeout)
+		// reaches this point if user cancels request before or user provides timeout as query param and timeout is exceeded
+		w.WriteHeader(http.StatusRequestTimeout)
 	case msgsNeeded := <-msgCh: // wait until all messages are processed to constuct response
 		resp := msgsResp{
 			Messages: msgsNeeded,
@@ -109,5 +106,54 @@ func handleBloom(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		w.Write(respBytes)
+	}
+}
+
+func handlePublish(w http.ResponseWriter, r *http.Request) {
+
+	// used for response
+	type msgsReq struct {
+		Messages []string `json:"messages"`
+	}
+
+	var ctx context.Context
+	var cancel context.CancelFunc
+	// allows for timeout as query param: ?timeout=5s
+	timeout, err := time.ParseDuration(r.FormValue("timeout"))
+	if err == nil {
+		ctx, cancel = context.WithTimeout(context.Background(), timeout)
+	} else {
+		ctx, cancel = context.WithCancel(context.Background())
+	}
+	defer cancel()
+
+	// unmarshall json into struct
+	dec := json.NewDecoder(r.Body)
+	var req msgsReq
+	err = dec.Decode(&req)
+	if err != nil {
+		// 400 error code because couldn't unmarshal into struct
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	doneCh := make(chan interface{})
+	// go routine that goes through each message and adds it if it doesn't already exist
+	go func(doneCh chan interface{}) {
+		for _, msg := range req.Messages {
+			if exists, ok := msgm[msg]; !ok || !exists {
+				msgs = append(msgs, msg)
+				msgm[msg] = true
+			}
+		}
+		close(doneCh)
+	}(doneCh)
+
+	select {
+	case <-ctx.Done():
+		// reaches this point if user cancels request before or user provides timeout as query param and timeout is exceeded
+		w.WriteHeader(http.StatusRequestTimeout)
+	case <-doneCh: // wait until all messages are processed to constuct response
+		// no content in response
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
