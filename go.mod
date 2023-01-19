@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/go-openapi/runtime v0.25.0
 	github.com/gorilla/mux v1.8.0
-	github.com/nettijoe96/bloom v0.0.0-20230117064510-12e743ea639a
+	github.com/nettijoe96/bloom v0.0.0-20230119034335-7a6ad026795c
 )
 
 require (

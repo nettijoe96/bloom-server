@@ -22,18 +22,33 @@ $ docker run -dp 8080:8080 --rm spv-bloom
 After running, you can see the swagger docs in browser: http://127.0.0.1:8080/docs
 
 ## Example
+```
+POST 127.0.0.1:8080/publish
+request:
+{
+    "messages" = [
+        "hello",
+        "world",
+        "another message"
+    ]
+}
+```
 
 ```
 POST 127.0.0.1:8080/bloom-request
 request:
 {
-    "bloom": "00004000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000"
+    "bloom": {
+        "filter": "00000000000000000001000001008000010000000000000100000000000000000000000000000001000000000000000000000100000000000000000000000040",
+        "k": 4
+    }
 }
 
 response:
 {
     "messages":[
-        "test1"
+        "hello"
+        "world"
     ]
 }
 ```

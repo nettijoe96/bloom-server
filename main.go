@@ -43,9 +43,14 @@ func main() {
 
 func handleBloom(w http.ResponseWriter, r *http.Request) {
 
+	type bloomEncoding struct {
+		Filter string `json:"filter"`
+		K      int    `json:"k"`
+	}
+
 	// used for request
 	type bloomReq struct {
-		Bloom string `json:"bloom"`
+		Bloom bloomEncoding `json:"bloom"`
 	}
 
 	// used for response
@@ -74,13 +79,17 @@ func handleBloom(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// convert hex string
-	bs, err := hex.DecodeString(req.Bloom)
+	bs, err := hex.DecodeString(req.Bloom.Filter)
 	if err != nil {
 		// 400 error code because couldn't unmarshal into struct
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	b := bloom.FromBytes(bs)
+	b, err := bloom.FromBytes(bs, req.Bloom.K)
+	if err != nil {
+		// 400 error code because issue with user inputted bloom filter
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 	msgCh := make(chan []string)
 	// go routine that checks against bloom filter
 	go func(msgCh chan []string) {

@@ -87,3 +87,5 @@ components:
       properties:
         bloom:
           type: string
+        k:
+          type: integer
