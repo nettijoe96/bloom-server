@@ -85,7 +85,7 @@ func handleBloom(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	b, err := bloom.FromBytes(bs, req.Bloom.K)
+	b, err := bloom.NewBigBloomFromBytes(bs, req.Bloom.K)
 	if err != nil {
 		// 400 error code because issue with user inputted bloom filter
 		http.Error(w, err.Error(), http.StatusBadRequest)

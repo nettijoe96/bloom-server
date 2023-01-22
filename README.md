@@ -53,5 +53,5 @@ response:
 }
 ```
 
-## TODO
+## Future Improvements
 1. Database to store messages on server side
